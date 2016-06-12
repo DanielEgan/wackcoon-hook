@@ -24,7 +24,13 @@ app.post('/payload', function (req, res) {
 	exec('git -C ~/projects/wackcoon-device pull -f', function(err, stdout, stderr) {
 		if (stdout) console.log(stdout);
 		if (stderr) console.log(stderr);
-		console.log('done');
+		console.log('done pull');
+	});
+
+	exec('git -C ~/projects/wackcoon-device npm install', function(err, stdout, stderr) {
+		if (stdout) console.log(stdout);
+		if (stderr) console.log(stderr);
+		console.log('done npm install');
 	});
 	res.sendStatus(200);
 	res.end();
