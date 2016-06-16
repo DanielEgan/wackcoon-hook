@@ -34,6 +34,9 @@ app.post('/payload', function (req, res) {
 
 	// and npm install with --production
 	exec('npm -C ~/projects/wackcoon-device install --production', execCallback);
+
+	// and run tsc
+	exec('tsc', execCallback);
 });
 
 res.sendStatus(200);
