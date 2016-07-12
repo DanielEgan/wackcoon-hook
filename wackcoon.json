@@ -1,6 +1,6 @@
 {
   "port": 5000,
-  "path": "/payload",
+  "path": "/deploy",
   "secret": "mygithubsecret",
   "rules": [{
     "event": "push",

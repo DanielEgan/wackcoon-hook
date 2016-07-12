@@ -1,52 +1,66 @@
 var express = require('express');
+var path = require('path');
 var bodyParser = require('body-parser');
 var app = express();
-var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
+var localtunnel = require('localtunnel');
+
+var port = 5000;
+var projectRoot = '~/projects/wackcoon-device';
+
+var tunnel = localtunnel(port, { subdomain: 'wackcoonhook' }, function (err, tunnel) {
+    if (err) console.log('error: ' + err);
+    else app.listen(port, function () {
+		console.log(`listening on port ${port}`)
+	});
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+//navigating to root should give user info about this hook
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.htm');
-	console.log('get /');
+	res.send(`deploy service ready at ${tunnel.url}`);
+	res.end();
 });
 
-app.get('/payload', function (req, res) {
-    res.sendStatus(200);
-	console.log('get /payload');
+//navigating to /deploy should initiate the deployment
+app.get('/deploy', function (req, res) {
+    deploy();
+	res.send('deployment triggered');
+	res.end();
 });
 
-app.post('/payload', function (req, res) {
-	//verify that the payload is a push from the correct repo
-	//verify repository.name == 'wackcoon-device' or repository.full_name = 'DanielEgan/wackcoon-device'
+//this is the primary route used by a GitHub hook
+app.post('/deploy', function (req, res) {
 	console.log(req.body.pusher.name + ' just pushed to ' + req.body.repository.name);
+	console.log('deploying...');
+	deploy();
+	res.sendStatus(200);
+	res.end();
+});
 
-	console.log('pulling code from GitHub...');
+function deploy() {
 
 	// reset any changes that have been made locally
-	exec('git -C ~/projects/wackcoon-device reset --hard', execCallback);
+	console.log('resetting...');
+	execSync(`git -C ${projectRoot} reset --hard`, execCallback);
 
 	// and ditch any files that have been added locally too
-	exec('git -C ~/projects/wackcoon-device clean -df', execCallback);
+	console.log('cleaning...');
+	execSync(`git -C ${projectRoot} clean -df`, execCallback);
 
 	// now pull down the latest
-	exec('git -C ~/projects/wackcoon-device pull -f', execCallback);
+	console.log('pulling...');
+	execSync(`git -C ${projectRoot} pull -f`, execCallback);
 
 	// and npm install with --production
-	exec('npm -C ~/projects/wackcoon-device install --production', execCallback);
+	console.log('npm installing...');
+	execSync(`npm -C ${projectRoot} install --production`, execCallback);
 
-	// and run tsc
-	exec('tsc', execCallback);
-});
-
-res.sendStatus(200);
-res.end();
-
-app.listen(5000, function () {
-	console.log('listening on port 5000')
-});
+}
 
 function execCallback(err, stdout, stderr) {
-	if(stdout) console.log(stdout);
-	if(stderr) console.log(stderr);
+	if (stdout) console.log(stdout);
+	if (stderr) console.log(stderr);
 }

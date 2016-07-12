@@ -7,12 +7,16 @@
     "body-parser": "^1.15.1",
     "compression": "^1.6.2",
     "express": "^4.13.4",
-    "node-local-tunnel": "^0.1.5",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "localtunnel":"^1.8.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript":"^1.8.10"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start":"nodemon app",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "tsc"
   },
   "keywords": [],
   "author": "",
