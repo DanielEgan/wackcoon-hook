@@ -39,9 +39,6 @@ app.post('/payload', function (req, res) {
 	exec('tsc', execCallback);
 });
 
-res.sendStatus(200);
-res.end();
-
 app.listen(5000, function () {
 	console.log('listening on port 5000')
 });
